@@ -27,6 +27,7 @@ set(dependencies
     image_transport
     image_publisher
     OpenCV
+    OrbbecSDK
     orbbec_camera_msgs
     rclcpp
     rclcpp_components
@@ -51,15 +52,6 @@ endforeach()
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED)
-
-if (EXISTS "${CMAKE_INSTALL_PREFIX}/lib/OrbbecSDKConfig.cmake")
-  set(OrbbecSDK_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-  set(ORBBEC_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/)
-else()
-  set(OrbbecSDK_DIR "${CMAKE_INSTALL_PREFIX}/../OrbbecSDK/lib/")
-  set(ORBBEC_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/../OrbbecSDK/include/")
-endif()
-find_package(OrbbecSDK REQUIRED)
 
 if(USE_RK_HW_DECODER)
     pkg_search_module(RK_MPP REQUIRED rockchip_mpp)
