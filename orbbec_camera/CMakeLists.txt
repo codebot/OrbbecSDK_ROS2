@@ -52,6 +52,15 @@ endforeach()
 find_package(PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED)
 
+if (EXISTS "${CMAKE_INSTALL_PREFIX}/lib/OrbbecSDKConfig.cmake")
+  set(OrbbecSDK_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+  set(ORBBEC_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/)
+else()
+  set(OrbbecSDK_DIR "${CMAKE_INSTALL_PREFIX}/../OrbbecSDK/lib/")
+  set(ORBBEC_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/../OrbbecSDK/include/")
+endif()
+find_package(OrbbecSDK REQUIRED)
+
 if(USE_RK_HW_DECODER)
     pkg_search_module(RK_MPP REQUIRED rockchip_mpp)
     if(NOT RK_MPP_FOUND)
@@ -78,11 +87,6 @@ elseif((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "64"))
     set(HOST_PLATFORM "arm64")
 endif()
 
-set(ORBBEC_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SDK/lib/${HOST_PLATFORM})
-set(ORBBEC_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SDK/include/)
-
-set(CMAKE_BUILD_RPATH "${CMAKE_BUILD_RPATH}:${ORBBEC_LIBS_DIR}")
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${ORBBEC_LIBS_DIR}")
 if(USE_NV_HW_DECODER)
     set(JETSON_MULTI_MEDIA_API_DIR /usr/src/jetson_multimedia_api)
     set(JETSON_MULTI_MEDIA_API_CLASS_DIR ${JETSON_MULTI_MEDIA_API_DIR}/samples/common/classes)
@@ -104,8 +108,7 @@ set(COMMON_LIBRARIES
     ${ORBBEC_SDK_LIBRARIES}
     ${OpenCV_LIBS}
     Eigen3::Eigen
-    -lOrbbecSDK
-    -L${ORBBEC_LIBS_DIR}
+    ob::OrbbecSDK
     Threads::Threads
     -lrt
     -ldw
@@ -235,8 +238,6 @@ install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}/)
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME}/)
 install(DIRECTORY examples DESTINATION share/${PROJECT_NAME}/)
-install(DIRECTORY ${ORBBEC_INCLUDE_DIR} DESTINATION include)
-install(DIRECTORY ${ORBBEC_LIBS_DIR}/ DESTINATION lib/ FILES_MATCHING PATTERN "*.so*")
 # Install extensions directory with explicit file copying to avoid symlink issues
 file(GLOB_RECURSE EXTENSION_FILES "${ORBBEC_LIBS_DIR}/extensions/*")
 if(EXTENSION_FILES)
